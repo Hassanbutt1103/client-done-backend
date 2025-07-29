@@ -11,29 +11,23 @@ const PORT = process.env.PORT || 3001;
 // Connect to Database
 connectDB();
 
+// Allowed Origins for CORS
+const allowedOrigins = [
+  'https://client-done-iota.vercel.app',
+  'https://client-done-git-main-web-developments-projects-e4ee688f.vercel.app',
+  'https://client-done-ce3nr3iy5-web-developments-projects-e4ee688f.vercel.app',
+  'https://client-done-juma.vercel.app'
+];
+
 // Middleware
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl, postman)
-    if (!origin) return callback(null, true);
-    
-    // Allow specific frontend URLs only
-    const allowedOrigins = [
-      'https://client-done-iota.vercel.app',
-      'https://client-done-git-main-web-developments-projects-e4ee688f.vercel.app',
-      'https://client-done-ce3nr3iy5-web-developments-projects-e4ee688f.vercel.app',
-      'https://client-done-juma.vercel.app'
-    ];
-    
-    // Check if origin is in allowed list
+    if (!origin) return callback(null, true); // Allow Postman/mobile apps
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
-    
-    // Log the blocked origin for debugging
     console.log(`🚫 CORS blocked origin: ${origin}`);
     console.log(`✅ Allowed origins: ${allowedOrigins.join(', ')}`);
-    
     return callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
@@ -41,9 +35,10 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'x-csrf-token'],
   optionsSuccessStatus: 200
 }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser()); // Add cookie parser middleware
+app.use(cookieParser());
 
 // Routes
 app.use('/api/v1/users', userRoutes);
@@ -51,12 +46,12 @@ app.use('/api/v1/pending-users', require('./routes/pendingUserRoutes'));
 app.use('/api/v1/auth', require('./routes/passwordResetRoutes'));
 app.use('/api/v1/client-data', require('./routes/clientDataRoutes'));
 
-// Server-side rendered password reset routes
+// Password Reset SSR routes
 const { showResetForm, resetPassword } = require('./controllers/passwordResetController');
 app.get('/reset-password', showResetForm);
 app.post('/reset-password', resetPassword);
 
-// Health check endpoint
+// Health Check
 app.get('/api/health', (req, res) => {
   res.status(200).json({
     status: 'success',
@@ -71,7 +66,7 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Error handling middleware
+// Error Handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({
@@ -81,7 +76,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-// 404 handler
+// 404 Handler
 app.use('*', (req, res) => {
   res.status(404).json({
     status: 'error',
@@ -89,10 +84,11 @@ app.use('*', (req, res) => {
   });
 });
 
+// Server Start
 app.listen(PORT, () => {
   console.log(`🚀 VP Engenharia Server running on port ${PORT}`);
   console.log(`📡 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🔑 JWT Secret: ${process.env.JWT_SECRET ? 'Configured ✅' : 'Not configured ❌'}`);
   console.log(`🗄️  Database URI: ${process.env.MONGODB_URI ? 'Configured ✅' : 'Not configured ❌'}`);
-  console.log(`🌐 CORS enabled for: http://localhost:5173, http://localhost:5174, http://localhost:5175`);
-}); 
+  console.log(`🌐 CORS enabled for: ${allowedOrigins.join(', ')}`);
+});

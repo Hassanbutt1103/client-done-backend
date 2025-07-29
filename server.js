@@ -21,7 +21,8 @@ app.use(cors({
     const allowedOrigins = [
       'https://client-done-iota.vercel.app',
       'https://client-done-git-main-web-developments-projects-e4ee688f.vercel.app',
-      'https://client-done-ce3nr3iy5-web-developments-projects-e4ee688f.vercel.app'
+      'https://client-done-ce3nr3iy5-web-developments-projects-e4ee688f.vercel.app',
+      'https://client-done-juma.vercel.app/'
     ];
     
     // Check if origin is in allowed list

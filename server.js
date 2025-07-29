@@ -27,7 +27,8 @@ app.use(cors({
       'http://localhost:5173', 
       'http://localhost:5174', 
       'http://localhost:5175',
-      'https://client-dashbaord-login.vercel.app'
+      // 'https://client-dashbaord-login.vercel.app'
+      'https://client-done-git-main-web-developments-projects-e4ee688f.vercel.app/'
     ];
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);

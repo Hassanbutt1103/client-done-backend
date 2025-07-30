@@ -27,10 +27,10 @@ router.get('/profile', getProfile);
 router.put('/profile', updateProfile);
 router.put('/change-password', changePassword);
 
-// Admin only routes
-router.get('/', authorize('admin'), getUsers);
+// Admin and Manager routes
+router.get('/', authorize('admin', 'manager'), getUsers);
 router.post('/create', authorize('admin'), createUser);
-router.patch('/:id', authorize('admin'), updateUser);
+router.patch('/:id', authorize('admin', 'manager'), updateUser);
 router.delete('/:id', authorize('admin'), deleteUser);
 
 module.exports = router; 

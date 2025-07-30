@@ -13,10 +13,10 @@ connectDB();
 
 // Allowed Origins for CORS
 const allowedOrigins = [
-  'https://client-done-iota.vercel.app',
-  'https://client-done-git-main-web-developments-projects-e4ee688f.vercel.app',
-  'https://client-done-ce3nr3iy5-web-developments-projects-e4ee688f.vercel.app',
-  'https://client-done-juma.vercel.app'
+  // 'https://client-done-iota.vercel.app',
+  // 'https://client-done-git-main-web-developments-projects-e4ee688f.vercel.app',
+  // 'https://client-done-ce3nr3iy5-web-developments-projects-e4ee688f.vercel.app',
+  'https://client-done-snowy.vercel.app'
 ];
 
 // Middleware

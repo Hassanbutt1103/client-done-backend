@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const { clearUserCache } = require('../middleware/auth');
 
 // Helper function to generate JWT token using environment variables
 const generateToken = (userId) => {
@@ -73,7 +74,7 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Find user and include password
+    // Find user and include password with optimized query
     const user = await User.findByEmail(email);
     if (!user) {
       return res.status(401).json({
@@ -107,8 +108,13 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Update last login
-    await user.updateLastLogin();
+    // Update last login (non-blocking for better performance)
+    user.updateLastLogin().catch(err => {
+      console.error('❌ Error updating last login:', err);
+    });
+
+    // Clear any cached data for this user
+    clearUserCache(user._id);
 
     console.log(`✅ Login successful: ${user.email} (${user.role})`);
     sendTokenResponse(user, 200, res, 'Login successful');

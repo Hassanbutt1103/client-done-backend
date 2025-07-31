@@ -62,6 +62,7 @@ const userSchema = new mongoose.Schema({
 userSchema.index({ email: 1 });
 userSchema.index({ role: 1 });
 userSchema.index({ isActive: 1 });
+userSchema.index({ createdAt: -1 }); // Add this for better query performance
 
 // Pre-save middleware to hash password
 userSchema.pre('save', async function(next) {

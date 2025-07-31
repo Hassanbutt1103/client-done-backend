@@ -1,6 +1,27 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
+// Simple in-memory cache for user data (in production, use Redis)
+const userCache = new Map();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+// Cache management
+const getCachedUser = (userId) => {
+  const cached = userCache.get(userId);
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    return cached.user;
+  }
+  userCache.delete(userId);
+  return null;
+};
+
+const setCachedUser = (userId, user) => {
+  userCache.set(userId, {
+    user,
+    timestamp: Date.now()
+  });
+};
+
 // Middleware to protect routes - verify JWT token
 exports.protect = async (req, res, next) => {
   try {
@@ -38,14 +59,22 @@ exports.protect = async (req, res, next) => {
       // Verify token
       const decoded = jwt.verify(token, jwtSecret);
       
-      // Find user by id from token in database
-      const user = await User.findById(decoded.userId);
+      // Check cache first for better performance
+      let user = getCachedUser(decoded.userId);
       
       if (!user) {
-        return res.status(401).json({
-          status: 'error',
-          message: 'No user found with this token'
-        });
+        // Find user by id from token in database
+        user = await User.findById(decoded.userId);
+        
+        if (!user) {
+          return res.status(401).json({
+            status: 'error',
+            message: 'No user found with this token'
+          });
+        }
+        
+        // Cache the user data
+        setCachedUser(decoded.userId, user);
       }
 
       // Check if user is active
@@ -131,5 +160,12 @@ exports.authorizeOwnerOrAdmin = (req, res, next) => {
       status: 'error',
       message: 'Not authorized to access this resource'
     });
+  }
+};
+
+// Clear user cache when user data changes
+exports.clearUserCache = (userId) => {
+  if (userId) {
+    userCache.delete(userId);
   }
 }; 
